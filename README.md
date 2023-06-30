@@ -5,5 +5,5 @@ A simple network manager that glues with some bash some other lightweight tools 
 
 It is mainly targeted to Artix Linux and Obarun but any Linux distro providing the required dependencies should be able to run it.
 
-# Qualche modifica
+At the moment only automatic configuration trough dhcp and manual settings trhough /etc/interfaces file modification are provided, with a tint2 executors that monitors if network is reached by wired or wireless connection.
 
