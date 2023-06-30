@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#set variables
+#network icons path
+iconpath="/usr/share/pmnm/icons"
+#check if a wifi net exist
+wifi_link=`iw dev wlan0 link 2> /dev/null`
+if  [ "$(iw dev wlan0 link 2> /dev/null)" != "Not connected." ]; then   
+	wifi_is_connected=true
+fi
+
+#check if wired network exist and is up
+wirednetwork=`ip -br l | awk '$1 !~ "lo|vir|tun|tap|w" {print $1}'`
+if $(cat /sys/class/net/$wirednetwork/operstate | grep -q up) ; then
+  neticon="$iconpath/network-wired.svg"
+elif [ "$wifi_is_connected" = true ] ; then
+  wifistrength=`iwctl station wlan0 show | awk '/dBm/ {print $2}'`
+  # convert signal to percentage quality
+  # https://stackoverflow.com/questions/15797920/how-to-convert-wifi-signal-strength-from-quality-percent-to-rssi-dbm
+  if (( $wifistrength <= -100 )) ; then
+    quality=0
+  elif (( $wifistrength >= -50 )) ; then
+    quality=100
+  else
+    quality=$(( 2*( $wifistrength+100 ) ))
+  fi
+  #assign icon
+  if (( $quality >= 80 )) ; then
+    wifiicon="network-wireless-signal-excellent.svg"
+  elif (( $quality >= 60 )) ; then
+    wifiicon="network-wireless-signal-good.svg"
+  elif (( $quality >= 40 )) ; then
+    wifiicon="network-wireless-signal-ok.svg"
+  elif (( $quality >= 20 )) ; then
+    wifiicon="network-wireless-signal-low.svg"
+  else
+   wifiicon="network-wireless-signal-none.svg"
+  fi
+  neticon="$iconpath/$wifiicon"
+else
+#wifi is not connected and wired net neither
+  neticon="$iconpath/network-wired-offline.svg"
+fi
+echo "$neticon"
