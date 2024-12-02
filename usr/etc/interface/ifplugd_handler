@@ -1,0 +1,26 @@
+#!/bin/sh
+# parameters:
+# $1: interface
+# $2: state
+
+if test x"$2" = x"down"; then
+	if pgrep -f "/usr/bin/udhcpc -i $1" > /dev/null; then
+		logger "Downing dhcp on $1"
+		pkill -USR2 -f "/usr/bin/udhcpc -i $1"
+	else
+		logger "Launching dhcp for $1 - "
+		/usr/bin/udhcpc -i $1
+	fi
+fi
+if test x"$2" = x"up"; then
+	if pgrep -f "/usr/bin/udhcpc -i $1" > /dev/null; then
+		logger "Upping dhcp on $1"
+		pkill -USR1 -f "/usr/bin/udhcpc -i $1"
+	else
+		logger "Launching dhcp for $1 - "
+		/usr/bin/udhcpc -i $1
+	fi
+fi
+# Parent ifplugd exits if we exit with nonzero.
+# Do not startle it:
+exit 0

@@ -1,0 +1,11 @@
+#!/bin/bash
+if="eth0"
+if [[ ! -z `find /sys/class/net -name "$if"` ]]; then 
+	if [ -f "/etc/network/interfaces" ]; then
+		/usr/bin/ifup -a
+	else
+		ip link set eth0 up
+		logger "Starting ifplugd on $if"
+		/usr/bin/ifplugd -aqlM -t3 -u8 -d8 -i "$if" -r "/etc/network/ifplugd_handler"
+	fi
+fi
